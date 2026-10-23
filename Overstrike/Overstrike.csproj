@@ -5,20 +5,28 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Properties\Resources\icon.ico</ApplicationIcon>
+    <ApplicationIcon>ArkhamCity\OverstrikeAC.ico</ApplicationIcon>
 
     <Authors>Tkachov</Authors>
+    <Title>Overstrike AC</Title>
+    <Product>Overstrike AC</Product>
+    <Description>Overstrike AC — experimental Arkham City mod manager fork</Description>
 
     <AssemblyVersion>1.8.1.0</AssemblyVersion>
 
     <FileVersion>1.8.1.0</FileVersion>
 
     <Platforms>x64</Platforms>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 
     <RepositoryUrl>https://github.com/Tkachov/Overstrike/</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Include="ArkhamCity\OverstrikeAC.ico" />
+    <Content Include="ArkhamCity\logo.png" CopyToOutputDirectory="PreserveNewest" TargetPath="Support\logo.png" />
     <Content Include="Properties\Resources\icon.ico" />
   </ItemGroup>
 
@@ -50,4 +58,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- Cross-build only: patch the UNBUNDLED host before .NET calculates bundle offsets. -->
+  <Target Name="EmbedCityIconBeforeBundle" BeforeTargets="GenerateSingleFileBundle" DependsOnTargets="PrepareForBundle" Condition="'$(PatchCityIcon)' == 'true' and '$(PublishSingleFile)' == 'true'">
+    <Exec Command="python &quot;$(MSBuildProjectDirectory)/../tools/embed_windows_icon.py&quot; &quot;$(AppHostIntermediatePath)&quot; &quot;$(MSBuildProjectDirectory)/ArkhamCity/OverstrikeAC.ico&quot;" />
+  </Target>
 </Project>

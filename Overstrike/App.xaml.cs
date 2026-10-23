@@ -23,6 +23,21 @@ namespace Overstrike {
 		ModsDetection? _detection = null;
 
 		protected override void OnStartup(StartupEventArgs e) {
+            // Arkham City fork: isolate UE3 payload handling from Insomniac TOC installers.
+            // --original keeps the upstream application startup available.
+            if (Array.IndexOf(e.Args, "--original") < 0) {
+                var gate = new System.Threading.Mutex(true, "Overstrike.ArkhamCity.Native", out bool first);
+                if (!first) { MessageBox.Show("The Arkham City fork is already running."); gate.Dispose(); Shutdown(); return; }
+                try {
+                    ShutdownMode = ShutdownMode.OnLastWindowClose;
+                    var city = new ArkhamCity.CityWindow();
+                    MainWindow = city;
+                    city.Closed += (_, _) => { gate.ReleaseMutex(); gate.Dispose(); };
+                    city.Show();
+                } catch (Exception ex) { MessageBox.Show(ex.Message, "Arkham City startup failed"); gate.Dispose(); Shutdown(); }
+                return;
+            }
+
 			CreateSubdirectories();
 			ReadSettings();
 			LoadProfiles();
